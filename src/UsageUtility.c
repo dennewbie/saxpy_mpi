@@ -23,17 +23,17 @@ void raiseError (const char * errorScope, int exitCode) {
     exit(exitCode);
 }
 
-void setEnvironment (float ** a, float ** b, float * alpha, const char * configurationFilePath, int * masterProcessorID) {
+void setEnvironment (float ** a, float ** b, float * alpha, const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize) {
     FILE * configurationFilePointer, * dataFilePointer;
     ssize_t getLineBytes;
     size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0;
     char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL;
-    unsigned int n;
     float singleNumber;
 
     configurationFilePointer = fopen(configurationFilePath, "r");
     if (!configurationFilePointer) raiseError(CONFIGURATION_FILE_OPEN_SCOPE, CONFIGURATION_FILE_OPEN_ERROR);
     if ((getLineBytes = getline((char ** restrict) & dataFilePathString, (size_t * restrict) & dataFilePathLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    dataFilePathString[strlen(dataFilePathString) - 1] = '\0';
     if ((getLineBytes = getline((char ** restrict) & masterProcessorID_string, (size_t * restrict) & masterProcessorID_length, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * masterProcessorID = (int) strtoul((const char * restrict) masterProcessorID_string, (char ** restrict) NULL, 10);
     if (* masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
@@ -41,26 +41,25 @@ void setEnvironment (float ** a, float ** b, float * alpha, const char * configu
     dataFilePointer = fopen(dataFilePathString, "r");
     if (!dataFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR);
     if ((getLineBytes = getline((char ** restrict) & nString, (size_t * restrict) & nLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    n = (unsigned int) strtoul((const char * restrict) nString, (char ** restrict) NULL, 10);
-    if (n == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    * arraySize = (unsigned int) strtoul((const char * restrict) nString, (char ** restrict) NULL, 10);
+    if (* arraySize == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
 
-    * a = (float *) calloc(n, sizeof(* a));
-    * b = (float *) calloc(n, sizeof(* b));
+    * a = (float *) calloc(* arraySize, sizeof(* a));
+    * b = (float *) calloc(* arraySize, sizeof(* b));
     if (!(* a) || !(* b)) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    for (int i = 0; i < n; i++) {
+
+    for (int i = 0; i < * arraySize; i++) {
         if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
         singleNumber = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
         if ((singleNumber == 0.0F || singleNumber == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR);
         (* a)[i] = singleNumber;
-        free(singleNumberString);
     }
     
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < * arraySize; i++) {
         if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
         singleNumber = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
         if ((singleNumber == 0.0F || singleNumber == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR);
         (* b)[i] = singleNumber;
-        free(singleNumberString);
     }
 
     if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);

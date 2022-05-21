@@ -58,6 +58,6 @@ enum boolean { FALSE, TRUE };
 
 void        checkUsage          (int argc,                  const char * argv[],    int expected_argc, const char * expectedUsageMessage                            );
 void        raiseError          (const char * errorScope,   int exitCode                                                                                            );
-void        setEnvironment      (float ** a,                float ** b,             float * alpha,     const char * configurationFilePath, int * masterProcessorID  );
+void        setEnvironment      (float ** a,                float ** b,             float * alpha,     const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize);
 
 #endif /* UsageUtility_h */
