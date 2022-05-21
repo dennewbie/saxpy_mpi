@@ -56,8 +56,10 @@ enum boolean { FALSE, TRUE };
 
 
 
-void        checkUsage          (int argc,                  const char * argv[],    int expected_argc, const char * expectedUsageMessage                            );
-void        raiseError          (const char * errorScope,   int exitCode                                                                                            );
-void        setEnvironment      (float ** a,                float ** b,             float * alpha,     const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize);
+void        checkUsage                      (int argc, const char * argv[], int expected_argc, const char * expectedUsageMessage);
+void        raiseError                      (const char * errorScope, int exitCode);
+void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize);
+void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
+void printArray                             (float * array, unsigned int arraySize);
 
 #endif /* UsageUtility_h */
