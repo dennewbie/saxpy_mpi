@@ -17,30 +17,47 @@
 // strlen
 #include <time.h>
 // time
+#include <math.h>
+// HUGE_VALF
 
 
 
 // Error code and scope message
-const int CHECK_USAGE_ERROR = 1;
-const char * CHECK_USAGE_SCOPE = "usage";
+static const int CHECK_USAGE_ERROR = 1;
+static const char * CHECK_USAGE_SCOPE = "check usage";
 
-const int FRPINTF_ERROR = 2;
-const char * FPRINTF_SCOPE = "fprintf";
+static const int FPRINTF_ERROR = 2;
+static const char * FPRINTF_SCOPE = "generic fprintf";
 
-const int FOPEN_ERROR = 3;
-const char * FOPEN_SCOPE = "fopen";
+static const int FOPEN_ERROR = 3;
+static const char * FOPEN_SCOPE = "generic fopen";
 
-const int GETLINE_ERROR = 4;
-const char * GETLINE_SCOPE = "getline";
+static const int GETLINE_ERROR = 4;
+static const char * GETLINE_SCOPE = "generic getline";
 
-const int CALLOC_ERROR = 6;
-const char * CALLOC_SCOPE = "calloc";
+static const int CALLOC_ERROR = 5;
+static const char * CALLOC_SCOPE = "generic calloc";
+
+static const int CONFIGURATION_FILE_OPEN_ERROR = 6;
+static const char * CONFIGURATION_FILE_OPEN_SCOPE = "setEnvironment/configurationFile opening";
+
+static const int DATA_FILE_OPEN_ERROR = 7;
+static const char * DATA_FILE_OPEN_SCOPE = "setEnvironment/dataFile opening";
+
+static const int STRTOUL_ERROR = 8;
+static const char * STRTOUL_SCOPE = "strtoul";
+
+static const int STRTOF_ERROR = 9;
+static const char * STRTOF_SCOPE = "strtof";
 
 
 
-enum boolean                    { FALSE,                TRUE                                                                        };
+enum boolean { FALSE, TRUE };
 
-void        checkUsage          (int argc,              const char * argv[],    int expected_argc, const char * expectedUsageMessage);
-void        raiseError          (char * errorScope,     int exitCode                                                                );
+
+
+void        checkUsage          (int argc,                  const char * argv[],    int expected_argc, const char * expectedUsageMessage                            );
+void        raiseError          (const char * errorScope,   int exitCode                                                                                            );
+void        setEnvironment      (float ** a,                float ** b,             float * alpha,     const char * configurationFilePath, int * masterProcessorID  );
 
 #endif /* UsageUtility_h */
