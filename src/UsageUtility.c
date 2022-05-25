@@ -53,9 +53,9 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, const ch
     * alpha = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
     if ((* alpha == 0.0F || * alpha == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR);
 
-    * c = (float *) calloc(* arraySize, sizeof(* c));
+    * c = (float *) calloc(* arraySize, sizeof(** c));
     if (!(* c)) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-
+    
     // free up memory and close file pointer
     fclose(configurationFilePointer);
     fclose(dataFilePointer);
@@ -71,9 +71,9 @@ void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigne
     ssize_t getLineBytes;
     float singleNumber = 0.0F;
 
-     * array = (float *) calloc(arraySize, sizeof(* array));
-     if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-     for (int i = 0; i < arraySize; i++) {
+    * array = (float *) calloc(arraySize, sizeof(* array));
+    if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+    for (int i = 0; i < arraySize; i++) {
         if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
         singleNumber = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
         if ((singleNumber == 0.0F || singleNumber == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR);
@@ -86,5 +86,13 @@ void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigne
 // just print the array on stdout
 void printArray (float * array, unsigned int arraySize) {
     if (fprintf(stdout, "\n\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
-    for (int i = 0; i < arraySize; i++) if (fprintf(stdout, "%.2f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+    for (int i = 0; i < arraySize; i++) if (fprintf(stdout, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+}
+
+void saveResult (float * array, unsigned int arraySize, const char * outputFilePath) {
+    FILE * outputFilePointer;
+    outputFilePointer = fopen(outputFilePath, "w");
+    if (!outputFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR);
+    for (int i = 0; i < arraySize; i++) if (fprintf(outputFilePointer, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
+    fclose(outputFilePointer);
 }

@@ -44,10 +44,13 @@ static const char * CONFIGURATION_FILE_OPEN_SCOPE = "setEnvironment/configuratio
 static const int DATA_FILE_OPEN_ERROR = 7;
 static const char * DATA_FILE_OPEN_SCOPE = "setEnvironment/dataFile opening";
 
-static const int STRTOUL_ERROR = 8;
+static const int OUTPUT_FILE_OPEN_ERROR = 8;
+static const char * OUTPUT_FILE_OPEN_SCOPE = "saveResult/outputFile opening";
+
+static const int STRTOUL_ERROR = 9;
 static const char * STRTOUL_SCOPE = "strtoul";
 
-static const int STRTOF_ERROR = 9;
+static const int STRTOF_ERROR = 10;
 static const char * STRTOF_SCOPE = "strtof";
 
 
@@ -60,6 +63,7 @@ void        checkUsage                      (int argc, const char * argv[], int 
 void        raiseError                      (const char * errorScope, int exitCode);
 void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize);
 void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
-void printArray                             (float * array, unsigned int arraySize);
+void        printArray                      (float * array, unsigned int arraySize);
+void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath);
 
 #endif /* UsageUtility_h */
