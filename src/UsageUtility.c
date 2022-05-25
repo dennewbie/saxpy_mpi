@@ -10,7 +10,7 @@
 
 
 // check parameter/parameters passed via terminal
-void checkUsage (int argc, const char * argv[], int expected_argc, const char * expectedUsageMessage) {
+void checkUsage (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage) {
     if (argc != expected_argc) {
         if (fprintf(stderr, (const char * restrict) "Usage: %s %s\n", argv[0], expectedUsageMessage) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
         raiseError(CHECK_USAGE_SCOPE, CHECK_USAGE_ERROR);
@@ -23,11 +23,11 @@ void raiseError (const char * errorScope, int exitCode) {
     exit(exitCode);
 }
 
-void setEnvironment (float ** a, float ** b, float * alpha, float ** c, const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize) {
+void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount) {
     FILE * configurationFilePointer, * dataFilePointer;
     ssize_t getLineBytes;
-    size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0;
-    char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL;
+    size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0, processorsAmountLength = 0;
+    char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL, * processorsAmountString = NULL;
     float singleNumber = 0.0F;
 
     // read basic settings parameter from .config file
@@ -36,8 +36,11 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, const ch
     if ((getLineBytes = getline((char ** restrict) & dataFilePathString, (size_t * restrict) & dataFilePathLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     dataFilePathString[strlen(dataFilePathString) - 1] = '\0';
     if ((getLineBytes = getline((char ** restrict) & masterProcessorID_string, (size_t * restrict) & masterProcessorID_length, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    * masterProcessorID = (int) strtoul((const char * restrict) masterProcessorID_string, (char ** restrict) NULL, 10);
-    if (* masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    * masterProcessorID = (int) strtol((const char * restrict) masterProcessorID_string, (char ** restrict) NULL, 10);
+    if (* masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOL_SCOPE, STRTOL_ERROR);
+    if ((getLineBytes = getline((char ** restrict) & processorsAmountString, (size_t * restrict) & processorsAmountLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    * processorsAmount = (unsigned int) strtoul((const char * restrict) processorsAmountString, (char ** restrict) NULL, 10);
+    if (* processorsAmount == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
 
     // read amount of numbers to read for each array
     dataFilePointer = fopen(dataFilePathString, "r");
@@ -63,6 +66,7 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, const ch
     free(dataFilePathString);
     free(nString);
     free(singleNumberString);
+    free(processorsAmountString);
 }
 
 void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigned int arraySize) {
@@ -90,8 +94,7 @@ void printArray (float * array, unsigned int arraySize) {
 }
 
 void saveResult (float * array, unsigned int arraySize, const char * outputFilePath) {
-    FILE * outputFilePointer;
-    outputFilePointer = fopen(outputFilePath, "w");
+    FILE * outputFilePointer = fopen(outputFilePath, "w");
     if (!outputFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR);
     for (int i = 0; i < arraySize; i++) if (fprintf(outputFilePointer, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     fclose(outputFilePointer);

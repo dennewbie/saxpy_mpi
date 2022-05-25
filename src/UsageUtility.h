@@ -47,10 +47,13 @@ static const char * DATA_FILE_OPEN_SCOPE = "setEnvironment/dataFile opening";
 static const int OUTPUT_FILE_OPEN_ERROR = 8;
 static const char * OUTPUT_FILE_OPEN_SCOPE = "saveResult/outputFile opening";
 
-static const int STRTOUL_ERROR = 9;
+static const int STRTOL_ERROR = 9;
+static const char * STRTOL_SCOPE = "strtol";
+
+static const int STRTOUL_ERROR = 10;
 static const char * STRTOUL_SCOPE = "strtoul";
 
-static const int STRTOF_ERROR = 10;
+static const int STRTOF_ERROR = 11;
 static const char * STRTOF_SCOPE = "strtof";
 
 
@@ -59,9 +62,9 @@ enum boolean { FALSE, TRUE };
 
 
 
-void        checkUsage                      (int argc, const char * argv[], int expected_argc, const char * expectedUsageMessage);
+void        checkUsage                      (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage);
 void        raiseError                      (const char * errorScope, int exitCode);
-void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, const char * configurationFilePath, int * masterProcessorID, unsigned int * arraySize);
+void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount);
 void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
 void        printArray                      (float * array, unsigned int arraySize);
 void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath);

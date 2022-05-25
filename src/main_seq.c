@@ -15,16 +15,16 @@ void executeComputation(float * a, float * b, float ** c, float alpha, unsigned 
 
 int main (int argc, char ** argv) {
     FILE * filePointer;
-    int processorID, masterProcessorID, tag, tmp = 0, start = 0;
-    unsigned int arraySize, arraySizeLoc, remainder = 0, nProcessor;
-    float * a, * aLoc, * b, * bLoc, * c;
+    int masterProcessorID;
+    unsigned int arraySize, processorsAmount;
+    float * a, * b, * c;
     float alpha;
     const int expectedArgc = 3;
     const char * expectedUsageMessage = "<configuration filepath> <output filepath>";
     char * outputFilePath = NULL;
 
     checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage);
-    setEnvironment(& a, & b, & alpha, & c, argv[1], & masterProcessorID, & arraySize);
+    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & processorsAmount);
     executeComputation(a, b, & c, alpha, arraySize);
     saveResult(c, arraySize, (const char *) argv[2]);
 
