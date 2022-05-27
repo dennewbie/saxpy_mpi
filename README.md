@@ -1,4 +1,4 @@
-# mpi_project
+# saxpy_mpi
 
 aggiungere logo
 
