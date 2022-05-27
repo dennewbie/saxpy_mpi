@@ -56,6 +56,9 @@ static const char * STRTOUL_SCOPE = "strtoul";
 static const int STRTOF_ERROR = 11;
 static const char * STRTOF_SCOPE = "strtof";
 
+static const int INVALID_SAXPY_MODE_ERROR = 12;
+static const char * INVALID_SAXPY_MODE_SCOPE = "saxpy invalid mode";
+
 
 
 enum boolean { FALSE, TRUE };
@@ -64,7 +67,9 @@ enum boolean { FALSE, TRUE };
 
 void        checkUsage                      (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage);
 void        raiseError                      (const char * errorScope, int exitCode);
-void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount);
+void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, 
+                                             const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount, 
+                                             char ** outputFilePathString, unsigned short int * saxpyMode);
 void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
 void        printArray                      (float * array, unsigned int arraySize);
 void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath);

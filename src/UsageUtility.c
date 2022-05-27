@@ -23,24 +23,33 @@ void raiseError (const char * errorScope, int exitCode) {
     exit(exitCode);
 }
 
-void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount) {
+void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount, char ** outputFilePathString, unsigned short int * saxpyMode) {
     FILE * configurationFilePointer, * dataFilePointer;
     ssize_t getLineBytes;
-    size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0, processorsAmountLength = 0;
-    char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL, * processorsAmountString = NULL;
+    size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0, processorsAmountLength = 0, outputFilePathLength = 0, saxpyModeLength = 0;
+    char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL, * processorsAmountString = NULL, * saxpyModeString = NULL;
     float singleNumber = 0.0F;
 
     // read basic settings parameter from .config file
     configurationFilePointer = fopen(configurationFilePath, "r");
     if (!configurationFilePointer) raiseError(CONFIGURATION_FILE_OPEN_SCOPE, CONFIGURATION_FILE_OPEN_ERROR);
-    if ((getLineBytes = getline((char ** restrict) & dataFilePathString, (size_t * restrict) & dataFilePathLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
-    dataFilePathString[strlen(dataFilePathString) - 1] = '\0';
+    // read master processor ID
     if ((getLineBytes = getline((char ** restrict) & masterProcessorID_string, (size_t * restrict) & masterProcessorID_length, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * masterProcessorID = (int) strtol((const char * restrict) masterProcessorID_string, (char ** restrict) NULL, 10);
     if (* masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOL_SCOPE, STRTOL_ERROR);
+    // read number of processors in the cluster
     if ((getLineBytes = getline((char ** restrict) & processorsAmountString, (size_t * restrict) & processorsAmountLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
     * processorsAmount = (unsigned int) strtoul((const char * restrict) processorsAmountString, (char ** restrict) NULL, 10);
     if (* processorsAmount == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    // read saxpy approach
+    if ((getLineBytes = getline((char ** restrict) & saxpyModeString, (size_t * restrict) & saxpyModeLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    * saxpyMode = (unsigned short int) strtoul((const char * restrict) saxpyModeString, (char ** restrict) NULL, 10);
+    if (* saxpyMode == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR);
+    // read input data file path
+    if ((getLineBytes = getline((char ** restrict) & dataFilePathString, (size_t * restrict) & dataFilePathLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
+    dataFilePathString[strlen(dataFilePathString) - 1] = '\0';
+    // read output data file path
+    if ((getLineBytes = getline((char ** restrict) outputFilePathString, (size_t * restrict) & outputFilePathLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR);
 
     // read amount of numbers to read for each array
     dataFilePointer = fopen(dataFilePathString, "r");
@@ -67,6 +76,7 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned
     free(nString);
     free(singleNumberString);
     free(processorsAmountString);
+    free(saxpyModeString);
 }
 
 void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigned int arraySize) {
