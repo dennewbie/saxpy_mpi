@@ -68,10 +68,10 @@ enum boolean { FALSE, TRUE };
 void        checkUsage                      (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage);
 void        raiseError                      (const char * errorScope, int exitCode);
 void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, 
-                                             const char * configurationFilePath, int * masterProcessorID, unsigned int * processorsAmount, 
+                                             const char * configurationFilePath, int * masterProcessorID, 
                                              char ** outputFilePathString, unsigned short int * saxpyMode);
 void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
-void        printArray                      (float * array, unsigned int arraySize);
+void        printArray                      (FILE * filePointer, float * array, unsigned int arraySize);
 void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath);
 
 #endif /* UsageUtility_h */

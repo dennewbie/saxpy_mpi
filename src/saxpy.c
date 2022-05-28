@@ -14,19 +14,19 @@
 
 
 int main (int argc, char ** argv) {
-    int processorID, masterProcessorID, tag, tmp = 0, start = 0;
-    unsigned int arraySize, arraySizeLoc, remainder = 0, nProcessor = 0;
-    float * a, * aLoc, * b, * bLoc, * c;
+    int masterProcessorID;
+    unsigned int arraySize;
+    float * a, * b, * c;
     float alpha;
     const int expectedArgc = 2;
     const char * expectedUsageMessage = "<configuration filepath>";
     char * outputFilePath = NULL;
-    SAXPY_MODE saxpyMode;
+    unsigned short int saxpyChosenMode;
 
     checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage);
-    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & nProcessor, 
-                    & outputFilePath, (unsigned short int *) & saxpyMode);
-    saxpy(a, b, & c, alpha, arraySize, saxpyMode);
+    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, 
+                    & outputFilePath, & saxpyChosenMode);
+    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID);
     saveResult(c, arraySize, (const char *) outputFilePath);
 
     free(a);
