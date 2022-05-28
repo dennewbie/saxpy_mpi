@@ -33,7 +33,7 @@ static const int FOPEN_ERROR = 3;
 static const char * FOPEN_SCOPE = "generic fopen";
 
 static const int GETLINE_ERROR = 4;
-static const char * GETLINE_SCOPE = "generic getline";
+static const char * GETLINE_SCOPE = "getline: reading from file";
 
 static const int CALLOC_ERROR = 5;
 static const char * CALLOC_SCOPE = "generic calloc";
