@@ -28,8 +28,7 @@ int main (int argc, char ** argv) {
     
     checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage);
     setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & outputFilePath, & saxpyChosenMode);
-    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, & argc, & argv);
-    saveResult(c, arraySize, (const char *) outputFilePath);
+    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, & argc, & argv, (const char *) outputFilePath);
 
     free(a);
     free(b);
