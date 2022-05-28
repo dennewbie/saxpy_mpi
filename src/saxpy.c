@@ -13,10 +13,10 @@
 #include "SaxpyLibrary.h"
 
 
+
 int main (int argc, char ** argv) {
-    const int expectedArgc = 2;
-    const char * expectedUsageMessage = "<configuration filepath>";
     char * outputFilePath = NULL;
+    const char * configurationFilePath = "../conf/settings.conf";
 
     int masterProcessorID;
     unsigned int arraySize;
@@ -24,12 +24,9 @@ int main (int argc, char ** argv) {
 
     float * a, * b, * c;
     float alpha;
-
-
-
-    checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage);
-    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & outputFilePath, & saxpyChosenMode);
-    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID);
+    
+    setEnvironment(& a, & b, & alpha, & c, & arraySize, configurationFilePath, & masterProcessorID, & outputFilePath, & saxpyChosenMode);
+    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, & argc, & argv);
     saveResult(c, arraySize, (const char *) outputFilePath);
 
     free(a);
