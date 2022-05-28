@@ -3,7 +3,7 @@
 if [ "$1" != "" ]; then
     echo "Starting MPI employing"
 else
-    echo "Insert arguments: <machinefile> <nProcessors> <executableFile>\n"
+    echo "Insert arguments: <machinefile> <nProcessors> <executableFile> <configuration file path>\n"
     exit
 fi
 {
@@ -13,4 +13,4 @@ fi
 } &> /dev/null
 
 cp $3 /home/cpd2021/
-mpirun --hostfile $1 -np $2 /home/cpd2021/$3
+mpirun --hostfile $1 -np $2 /home/cpd2021/$3 $4
