@@ -26,11 +26,12 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
 /*  TODO: 
     1) Usare MPI_Abort(...) DONE
     2) lettura file dopo mpi init e poi invio porzioni DONE
-    3) tempi
-    4) nproc > elementi
-    5) verifica con numero di elementi differenti tra i due array DONE: funziona bene dà errore
-    6) relase Resources
-    7) fix all error handling DONE
+    3) verifica con numero di elementi differenti tra i due array  DONE
+    4) fix all error handling DONE
+    5) nproc > elementi OR <= 0 DONE
+    6) tempi
+    7) relase Resources
+    
 */
 
 void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor) {

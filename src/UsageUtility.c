@@ -54,6 +54,7 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned
     if ((getLineBytes = getline((char ** restrict) & nString, (size_t * restrict) & nLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
     * arraySize = (unsigned int) strtoul((const char * restrict) nString, (char ** restrict) NULL, 10);
     if (* arraySize == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR, commWorld, FALSE);
+    if (* arraySize <= 0) raiseError(INVALID_ARRAY_SIZE_SCOPE, INVALID_ARRAY_SIZE_ERROR, commWorld, FALSE);
 
     // read array a, b and scalar alpha from file. Create array c
     createFloatArrayFromFile(dataFilePointer, a, * arraySize, commWorld);

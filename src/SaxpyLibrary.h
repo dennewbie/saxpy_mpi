@@ -20,49 +20,27 @@
 #include <stdarg.h>
 // for variadic procedures
 
+
+
 // Error code and scope message
-static const int MPI_INIT_ERROR = 101;
 static const char * MPI_INIT_SCOPE = "MPI Init";
-
-static const int MPI_FINALIZE_ERROR = 102;
 static const char * MPI_FINALIZE_SCOPE = "MPI Finalize";
-
-static const int MPI_COMM_RANK_ERROR = 103;
 static const char * MPI_COMM_RANK_SCOPE = "MPI CommRank";
-
-static const int MPI_COMM_SIZE_ERROR = 104;
 static const char * MPI_COMM_SIZE_SCOPE = "MPI CommSize";
-
-static const int MPI_SEND_ERROR = 105;
 static const char * MPI_SEND_SCOPE = "MPI Send";
-
-static const int MPI_RECV_ERROR = 106;
 static const char * MPI_RECV_SCOPE = "MPI Recv";
-
-static const int MPI_GATHER_ERROR = 107;
 static const char * MPI_GATHER_SCOPE = "MPI Gather";
-
-static const int MPI_GATHERV_ERROR = 108;
 static const char * MPI_GATHERV_SCOPE = "MPI Gatherv";
-
-static const int MPI_ABORT_ERROR = 109;
-static const char * MPI_ABORT_SCOPE = "MPI Abort";
-
-static const int MPI_BARRIER_ERROR = 110;
 static const char * MPI_BARRIER_SCOPE = "MPI Barrier";
-
-static const int MPI_BCAST_ERROR = 111;
 static const char * MPI_BCAST_SCOPE = "MPI Bcast";
-
-static const int MPI_SCATTER_ERROR = 112;
 static const char * MPI_SCATTER_SCOPE = "MPI Scatter";
-
-static const int MPI_SCATTERV_ERROR = 113;
 static const char * MPI_SCATTERV_SCOPE = "MPI Scatterv";
 
+static const int MPI_ABORT_ERROR = 101;
+static const char * MPI_ABORT_SCOPE = "MPI Abort";
 
-
-static const int TAG_START_OFFSET = 10;
+static const int INVALID_ARRAY_SIZE_ERROR = 102;
+static const char * INVALID_ARRAY_SIZE_SCOPE = "setEnvironment/reading array size: invalid array size. It should be greater than zero";
 
 
 
