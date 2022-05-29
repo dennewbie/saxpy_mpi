@@ -44,6 +44,11 @@ static const char * INVALID_ARRAY_SIZE_SCOPE = "setEnvironment/reading array siz
 
 
 
+static const char * OUTPUT_USER_MESSAGE = "\n\n\n\t*** Saxpy Operation completed successfully ***\n\nOutput can be found at: %s\n\n\n"
+                                          "\t*** Saxpy Operation Details ***\n\n-> Vectors Size:\t%d\n-> Alpha:\t\t%.5f\n-> Max Time:\t\t%.7f seconds\n\n\n";
+
+
+
 typedef enum {
     SAXPY_SEQUENTIAL = 0,
     SAXPY_PARALLEL = 1

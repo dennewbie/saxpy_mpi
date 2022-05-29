@@ -24,6 +24,7 @@ int main (int argc, char ** argv) {
     unsigned short int saxpyChosenMode;
 
     float * a, * b, * c, alpha;
+    double startTime, endTime, totalTime, maxTime;
     a = b = c = NULL;
     MPI_Comm myCommWorld = MPI_COMM_WORLD;
 
@@ -36,6 +37,9 @@ int main (int argc, char ** argv) {
     if (masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOL_SCOPE, STRTOL_ERROR, myCommWorld, FALSE);
     if (processorID == masterProcessorID) setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & outputFilePath, & saxpyChosenMode, myCommWorld);
     
+    if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);
+    startTime = MPI_Wtime();
+
     if ((errorCode = MPI_Bcast(& masterProcessorID, 1, MPI_INT, masterProcessorID, myCommWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, myCommWorld, FALSE); 
     if ((errorCode = MPI_Bcast(& saxpyChosenMode, 1, MPI_UNSIGNED_SHORT, masterProcessorID, myCommWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, myCommWorld, FALSE); 
     if ((errorCode = MPI_Bcast(& arraySize, 1, MPI_UNSIGNED, masterProcessorID, myCommWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, myCommWorld, FALSE); 
@@ -43,6 +47,16 @@ int main (int argc, char ** argv) {
     if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);
     saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, myCommWorld, processorID, nProcessor);
     
+    if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);
+    endTime = MPI_Wtime();
+    totalTime = endTime - startTime;
+    MPI_Reduce(& totalTime, & maxTime, 1, MPI_DOUBLE, MPI_MAX, masterProcessorID, myCommWorld);
+    if (processorID == masterProcessorID) {
+        if (fprintf(stdout, (const char * restrict) OUTPUT_USER_MESSAGE, outputFilePath, arraySize, alpha, maxTime) < 0) {
+            raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, myCommWorld, FALSE);
+        }
+    }
+   
     if (processorID == masterProcessorID) {
         saveResult(c, arraySize, outputFilePath, myCommWorld);
         // releaseMemory(a, b, c, outputFilePath);

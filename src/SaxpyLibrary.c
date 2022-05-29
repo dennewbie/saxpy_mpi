@@ -29,7 +29,7 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
     3) verifica con numero di elementi differenti tra i due array  DONE
     4) fix all error handling DONE
     5) nproc > elementi OR <= 0 DONE
-    6) tempi
+    6) tempi DONE
     7) relase Resources
     
 */
