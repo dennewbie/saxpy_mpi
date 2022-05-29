@@ -25,10 +25,11 @@ int main (int argc, char ** argv) {
 
     float * a, * b, * c;
     float alpha;
+    MPI_Comm myCommWorld = MPI_COMM_WORLD;
     
-    checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage);
-    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & outputFilePath, & saxpyChosenMode);
-    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, & argc, & argv, (const char *) outputFilePath);
+    checkUsage(argc, (const char **) argv, expectedArgc, expectedUsageMessage, myCommWorld);
+    setEnvironment(& a, & b, & alpha, & c, & arraySize, argv[1], & masterProcessorID, & outputFilePath, & saxpyChosenMode, myCommWorld);
+    saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, & argc, & argv, (const char *) outputFilePath, myCommWorld);
 
     free(a);
     free(b);

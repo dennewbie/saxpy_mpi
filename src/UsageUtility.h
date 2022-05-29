@@ -54,17 +54,17 @@ static const char * RECURSION_OVERFLOW_SCOPE = "raiseError recursion overflow";
 
 
 
-enum boolean { FALSE, TRUE };
+typedef enum { FALSE, TRUE } boolean;
 
 
 
-void        checkUsage                      (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage);
-void        raiseError                      (const char * errorScope, int exitCode);
+void        checkUsage                      (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage, MPI_Comm commWorld);
+void        raiseError                      (const char * errorScope, int exitCode, MPI_Comm commWorld, boolean recursionOverflow);
 void        setEnvironment                  (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, 
                                              const char * configurationFilePath, int * masterProcessorID, 
-                                             char ** outputFilePathString, unsigned short int * saxpyMode);
-void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize);
-void        printArray                      (FILE * filePointer, float * array, unsigned int arraySize);
-void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath);
+                                             char ** outputFilePathString, unsigned short int * saxpyMode, MPI_Comm commWorld);
+void        createArrayWithNumbersFromFile  (FILE * filePointer, float ** array, unsigned int arraySize, MPI_Comm commWorld);
+void        printArray                      (FILE * filePointer, float * array, unsigned int arraySize, MPI_Comm commWorld);
+void        saveResult                      (float * array, unsigned int arraySize, const char * outputFilePath, MPI_Comm commWorld);
 
 #endif /* UsageUtility_h */

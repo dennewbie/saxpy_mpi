@@ -59,6 +59,6 @@ typedef enum {
 
 
 
-void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySize, unsigned short int saxpyMode, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath);
-void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath);
-void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned int arraySize, const char * outputFilePath);
+void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySize, unsigned short int saxpyMode, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath, MPI_Comm commWorld);
+void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath, MPI_Comm commWorld);
+void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned int arraySize, const char * outputFilePath, MPI_Comm commWorld);
