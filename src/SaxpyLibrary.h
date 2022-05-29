@@ -17,6 +17,8 @@
 // time
 #include <math.h>
 // HUGE_VALF
+#include <stdarg.h>
+// for variadic procedures
 
 // Error code and scope message
 static const int MPI_INIT_ERROR = 101;

@@ -77,4 +77,8 @@ float *         createFloatArray                (unsigned int arraySize, MPI_Com
 
 int *           createIntArray                  (unsigned int arraySize, MPI_Comm commWorld);
 
+void            releaseMemory                   (void * arg1, ... );
+
+void            closeFiles                      (void * arg1, ... );
+
 #endif /* UsageUtility_h */

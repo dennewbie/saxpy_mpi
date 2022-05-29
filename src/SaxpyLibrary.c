@@ -10,7 +10,6 @@
 
 
 void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySize, unsigned short int saxpyMode, int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor) {
-    printf("\n MODE: %d\n", saxpyMode);
     switch (saxpyMode) {
         case SAXPY_SEQUENTIAL:
             saxpy_sequential(a, b, c, alpha, arraySize, commWorld);
@@ -36,12 +35,9 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     int * recvcounts = NULL, * displacements = NULL, arraySizeLoc = 0;
     unsigned int remainder = 0, singleOffset = 0, tag = 0, offset = 0;
     float * aLoc, * bLoc, * cLoc;
+    aLoc = bLoc = cLoc = NULL;
 
-    printf("\nHello saxpy_parallel\n");
-/*
-    // err hand
     MPI_Bcast(& alpha, 1, MPI_FLOAT, masterProcessorID, commWorld);
-    MPI_Bcast(& arraySize, 1, MPI_UNSIGNED, masterProcessorID, commWorld);
 
     arraySizeLoc = arraySize / nProcessor;
     remainder = arraySize % nProcessor;
@@ -69,12 +65,19 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
 
     // err hand
     MPI_Scatterv(a, recvcounts, displacements, MPI_FLOAT, aLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld);
-    for (int i = 0; i < arraySizeLoc; i++) printf("ID: %d -> %f + %f\n", processorID, aLoc[i], bLoc[i]);
+    MPI_Scatterv(b, recvcounts, displacements, MPI_FLOAT, bLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld);
+
     saxpy_sequential(aLoc, bLoc, & cLoc, alpha, arraySizeLoc, commWorld);
 
     // deallocare memoria altri processori aLoc, bLoc, cLoc
     if (MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, commWorld) != MPI_SUCCESS) raiseError(MPI_GATHERV_SCOPE, MPI_GATHERV_ERROR, commWorld, FALSE);
-*/
+
+    free(aLoc);
+    free(bLoc);
+    free(cLoc);
+    if (processorID == masterProcessorID) free(recvcounts); free(displacements);
+    // releaseMemory(aLoc, bLoc, cLoc);
+    // if (processorID == masterProcessorID) releaseMemory(recvcounts, displacements);
 }
 
 
