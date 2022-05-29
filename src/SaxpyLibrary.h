@@ -51,6 +51,15 @@ static const char * MPI_ABORT_SCOPE = "MPI Abort";
 static const int MPI_BARRIER_ERROR = 110;
 static const char * MPI_BARRIER_SCOPE = "MPI Barrier";
 
+static const int MPI_BCAST_ERROR = 111;
+static const char * MPI_BCAST_SCOPE = "MPI Bcast";
+
+static const int MPI_SCATTER_ERROR = 112;
+static const char * MPI_SCATTER_SCOPE = "MPI Scatter";
+
+static const int MPI_SCATTERV_ERROR = 113;
+static const char * MPI_SCATTERV_SCOPE = "MPI Scatterv";
+
 
 
 static const int TAG_START_OFFSET = 10;

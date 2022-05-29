@@ -25,19 +25,22 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
 
 /*  TODO: 
     1) Usare MPI_Abort(...) DONE
-    2) lettura file dopo mpi init e poi invio porzioni
+    2) lettura file dopo mpi init e poi invio porzioni DONE
     3) tempi
     4) nproc > elementi
-    5) verifica con numero di elementi differenti tra i due array
+    5) verifica con numero di elementi differenti tra i due array DONE: funziona bene dà errore
+    6) relase Resources
+    7) fix all error handling DONE
 */
 
 void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor) {
+    int errorCode;
     int * recvcounts = NULL, * displacements = NULL, arraySizeLoc = 0;
     unsigned int remainder = 0, singleOffset = 0, tag = 0, offset = 0;
     float * aLoc, * bLoc, * cLoc;
     aLoc = bLoc = cLoc = NULL;
 
-    MPI_Bcast(& alpha, 1, MPI_FLOAT, masterProcessorID, commWorld);
+    if ((errorCode = MPI_Bcast(& alpha, 1, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, commWorld, FALSE); 
 
     arraySizeLoc = arraySize / nProcessor;
     remainder = arraySize % nProcessor;
@@ -55,7 +58,7 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
         displacements[0] = 0;
     }
 
-    if (MPI_Gather(& arraySizeLoc, 1, MPI_INT, recvcounts, 1, MPI_INT, masterProcessorID, commWorld) != MPI_SUCCESS) raiseError(MPI_GATHER_SCOPE, MPI_GATHER_ERROR, commWorld, FALSE);
+    if ((errorCode = MPI_Gather(& arraySizeLoc, 1, MPI_INT, recvcounts, 1, MPI_INT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_GATHER_SCOPE, errorCode, commWorld, FALSE);
     if (processorID == masterProcessorID) for (int i = 1; i < nProcessor; i++) displacements[i] = displacements[i - 1] + recvcounts[i - 1];
 
     aLoc = createFloatArray(arraySizeLoc, commWorld);
@@ -63,19 +66,18 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     cLoc = createFloatArray(arraySizeLoc, commWorld);
     offset = (processorID * arraySizeLoc) + singleOffset;
 
-    // err hand
-    MPI_Scatterv(a, recvcounts, displacements, MPI_FLOAT, aLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld);
-    MPI_Scatterv(b, recvcounts, displacements, MPI_FLOAT, bLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld);
-
+    if ((errorCode = MPI_Scatterv(a, recvcounts, displacements, MPI_FLOAT, aLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_SCATTERV_SCOPE, errorCode, commWorld, FALSE); 
+    if ((errorCode = MPI_Scatterv(b, recvcounts, displacements, MPI_FLOAT, bLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_SCATTERV_SCOPE, errorCode, commWorld, FALSE); 
     saxpy_sequential(aLoc, bLoc, & cLoc, alpha, arraySizeLoc, commWorld);
-
-    // deallocare memoria altri processori aLoc, bLoc, cLoc
-    if (MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, commWorld) != MPI_SUCCESS) raiseError(MPI_GATHERV_SCOPE, MPI_GATHERV_ERROR, commWorld, FALSE);
+    if ((errorCode = MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_GATHERV_SCOPE, errorCode, commWorld, FALSE);
 
     free(aLoc);
     free(bLoc);
     free(cLoc);
-    if (processorID == masterProcessorID) free(recvcounts); free(displacements);
+    if (processorID == masterProcessorID) {
+        free(recvcounts); 
+        free(displacements);
+    }
     // releaseMemory(aLoc, bLoc, cLoc);
     // if (processorID == masterProcessorID) releaseMemory(recvcounts, displacements);
 }
@@ -84,27 +86,3 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
 void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned int arraySize, MPI_Comm commWorld) {
     for (int i = 0; i < arraySize; i++) * ((* c) + i) = (alpha * (* (a + i))) + (* (b + i));
 }
-
-
-/*
-    if (processorID == masterProcessorID) {
-        arraySizeLoc = arraySize / nProcessor;
-        remainder = arraySize % nProcessor;
-
-        for (int i = 0; i < nProcessor; i++) {
-            tag = TAG_START_OFFSET + i;
-            if (MPI_Send(& alpha, 1, MPI_FLOAT, tag, commWorld) != MPI_SUCCESS)  raiseError(MPI_SEND_SCOPE, MPI_SEND_ERROR, commWorld, FALSE);
-            if (processorID < remainder) offset = TRUE;
-
-            
-            // spedire aLoc, bLoc, alfa
-        }
-    } else {
-        tag = TAG_START_OFFSET + processorID;
-        MPI_Recv(& alfa, 1, MPI_INT, 0, tag, commWorld, & status);
-    }
-    printf("\nSono %d\n", processorID);
-    */
-
-
-   // saxpy_sequential(a + offset, b + offset, & cLoc, alpha, arraySizeLoc, NULL, commWorld);

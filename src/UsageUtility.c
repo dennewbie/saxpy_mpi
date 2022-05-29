@@ -93,7 +93,7 @@ void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int 
     free(singleNumberString);
 }
 
-// just print the array on stdout
+// just print the array on file pointer
 void printArray (FILE * filePointer, float * array, unsigned int arraySize, MPI_Comm commWorld) {
     for (int i = 0; i < arraySize; i++) if (fprintf(filePointer, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, commWorld, FALSE);
 }
