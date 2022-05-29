@@ -64,16 +64,9 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned
     if ((* alpha == 0.0F || * alpha == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR, commWorld, FALSE);
 
     * c = createFloatArray(* arraySize, commWorld);
-    
-    // free up memory and close file pointer
-    // closeFiles(configurationFilePointer, dataFilePointer);
-    // releaseMemory(dataFilePathString, nString, singleNumberString, saxpyModeString);
-    fclose(configurationFilePointer); 
-    fclose(dataFilePointer);
-    free(dataFilePathString); 
-    free(nString);
-    free(singleNumberString);
-    free(saxpyModeString);
+
+    closeFiles(configurationFilePointer, dataFilePointer, (void *) 0);
+    releaseMemory(dataFilePathString, nString, singleNumberString, saxpyModeString, (void *) 0);
 }
 
 void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int arraySize, MPI_Comm commWorld) {
@@ -90,8 +83,7 @@ void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int 
         *((* array) + i) = singleNumber;
     }
 
-    // releaseMemory(singleNumberString);
-    free(singleNumberString);
+    releaseMemory(singleNumberString, (void *) 0);
 }
 
 // just print the array on file pointer
@@ -103,8 +95,7 @@ void saveResult (float * array, unsigned int arraySize, const char * outputFileP
     FILE * outputFilePointer = fopen(outputFilePath, "w");
     if (!outputFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR, commWorld, FALSE);
     printArray(outputFilePointer, array, arraySize, commWorld);
-    // closeFiles(outputFilePointer);
-    fclose(outputFilePointer);
+    closeFiles(outputFilePointer, (void *) 0);
 }
 
 float * createFloatArray (unsigned int arraySize, MPI_Comm commWorld) {
@@ -118,25 +109,21 @@ int * createIntArray (unsigned int arraySize, MPI_Comm commWorld) {
     if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);
     return array;
 }
-/*
+
 void releaseMemory (void * arg1, ... ) {
     va_list argumentsList;
     void * currentElement;
-    if (arg1 != NULL) {
-        va_start(argumentsList, arg1);
-        // Liberazione di tutta la memoria dinamica espressa come lista di puntatori a void
-        while ((currentElement = va_arg(argumentsList, void *)) != 0) free(currentElement);
-        va_end(argumentsList);
-    }
+    free(arg1);
+    va_start(argumentsList, arg1);
+    while ((arg1 = va_arg(argumentsList, void *)) != 0) free(arg1);
+    va_end(argumentsList);
 }
 
 void closeFiles (void * arg1, ... ) {
     va_list argumentsList;
     void * currentElement;
-    if (arg1 != NULL) {
-        va_start(argumentsList, arg1);
-        while ((currentElement = va_arg(argumentsList, void *)) != 0) fclose(currentElement);
-        va_end(argumentsList);
-    }
+    fclose(arg1);
+    va_start(argumentsList, arg1);
+    while ((arg1 = va_arg(argumentsList, void *)) != 0) fclose(arg1);
+    va_end(argumentsList);
 }
-*/

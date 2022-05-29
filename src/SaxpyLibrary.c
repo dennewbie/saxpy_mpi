@@ -23,17 +23,6 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
     }
 }
 
-/*  TODO: 
-    1) Usare MPI_Abort(...) DONE
-    2) lettura file dopo mpi init e poi invio porzioni DONE
-    3) verifica con numero di elementi differenti tra i due array  DONE
-    4) fix all error handling DONE
-    5) nproc > elementi OR <= 0 DONE
-    6) tempi DONE
-    7) relase Resources
-    
-*/
-
 void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor) {
     int errorCode;
     int * recvcounts = NULL, * displacements = NULL, arraySizeLoc = 0;
@@ -71,16 +60,9 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     if ((errorCode = MPI_Scatterv(b, recvcounts, displacements, MPI_FLOAT, bLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_SCATTERV_SCOPE, errorCode, commWorld, FALSE); 
     saxpy_sequential(aLoc, bLoc, & cLoc, alpha, arraySizeLoc, commWorld);
     if ((errorCode = MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_GATHERV_SCOPE, errorCode, commWorld, FALSE);
-
-    free(aLoc);
-    free(bLoc);
-    free(cLoc);
-    if (processorID == masterProcessorID) {
-        free(recvcounts); 
-        free(displacements);
-    }
-    // releaseMemory(aLoc, bLoc, cLoc);
-    // if (processorID == masterProcessorID) releaseMemory(recvcounts, displacements);
+    
+    releaseMemory(aLoc, bLoc, cLoc, (void *) 0);
+    if (processorID == masterProcessorID) releaseMemory(recvcounts, displacements, (void *) 0);
 }
 
 

@@ -59,11 +59,7 @@ int main (int argc, char ** argv) {
    
     if (processorID == masterProcessorID) {
         saveResult(c, arraySize, outputFilePath, myCommWorld);
-        // releaseMemory(a, b, c, outputFilePath);
-        free(a);
-        free(b);
-        free(c);
-        free(outputFilePath);
+        releaseMemory(a, b, c, outputFilePath, (void *) 0);
     }
     
     if ((errorCode = MPI_Finalize() != MPI_SUCCESS)) raiseError(MPI_FINALIZE_SCOPE, errorCode, myCommWorld, FALSE);
