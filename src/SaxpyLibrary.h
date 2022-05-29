@@ -6,7 +6,17 @@
 //
 
 #include "mpi.h"
-#include "UsageUtility.h"
+#include <stdio.h>
+// fprintf, perror
+#include <stdlib.h>
+// exit
+#include <errno.h>
+#include <string.h>
+// strlen
+#include <time.h>
+// time
+#include <math.h>
+// HUGE_VALF
 
 // Error code and scope message
 static const int MPI_INIT_ERROR = 101;
@@ -26,6 +36,15 @@ static const char * MPI_SEND_SCOPE = "MPI Send";
 
 static const int MPI_RECV_ERROR = 106;
 static const char * MPI_RECV_SCOPE = "MPI Recv";
+
+static const int MPI_GATHER_ERROR = 107;
+static const char * MPI_GATHER_SCOPE = "MPI Gather";
+
+static const int MPI_GATHERV_ERROR = 108;
+static const char * MPI_GATHERV_SCOPE = "MPI Gatherv";
+
+static const int MPI_ABORT_ERROR = 109;
+static const char * MPI_ABORT_SCOPE = "MPI Abort";
 
 
 

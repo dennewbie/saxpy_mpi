@@ -8,17 +8,7 @@
 #ifndef UsageUtility_h
 #define UsageUtility_h
 
-#include <stdio.h>
-// fprintf, perror
-#include <stdlib.h>
-// exit
-#include <errno.h>
-#include <string.h>
-// strlen
-#include <time.h>
-// time
-#include <math.h>
-// HUGE_VALF
+#include "SaxpyLibrary.h"
 
 
 
@@ -58,6 +48,9 @@ static const char * STRTOF_SCOPE = "strtof";
 
 static const int INVALID_SAXPY_MODE_ERROR = 12;
 static const char * INVALID_SAXPY_MODE_SCOPE = "saxpy invalid mode";
+
+static const int RECURSION_OVERFLOW_ERROR = 13;
+static const char * RECURSION_OVERFLOW_SCOPE = "raiseError recursion overflow";
 
 
 

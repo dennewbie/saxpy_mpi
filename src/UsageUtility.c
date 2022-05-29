@@ -94,7 +94,6 @@ void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigne
 
 // just print the array on stdout
 void printArray (FILE * filePointer, float * array, unsigned int arraySize) {
-    if (fprintf(filePointer, "OUTPUT\n") < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
     for (int i = 0; i < arraySize; i++) if (fprintf(filePointer, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR);
 }
 

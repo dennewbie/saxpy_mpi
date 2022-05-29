@@ -5,7 +5,7 @@
 //  Created by Denny Caruso on 28/05/22.
 //
 
-#include "SaxpyLibrary.h"
+#include "UsageUtility.h"
 
 
 
@@ -23,7 +23,12 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
     }
 }
 
-// TODO: Usare MPI_Abort(...)
+/*  TODO: 
+    1) Usare MPI_Abort(...)
+    2) lettura file dopo mpi init e poi invio porzioni
+    3) tempi
+*/
+
 void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath) {
     int processorID, * recvcounts = NULL, * displacements = NULL;
     unsigned int arraySizeLoc = 0, remainder = 0, nProcessor = 0, singleOffset = 0, tag = 0, tmp = 0, offset = 0;
@@ -48,30 +53,19 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     
     offset = (processorID * arraySizeLoc) + singleOffset;
     saxpy_sequential(a + offset, b + offset, & cLoc, alpha, arraySizeLoc, NULL);
-    // for (int i = 0; i < arraySizeLoc; i++)  printf("ID: %d -> %f\n", processorID, cLoc[i]);
-
 
     if (processorID == masterProcessorID) {
         recvcounts = (int *) calloc(nProcessor, sizeof(* recvcounts));
-        if (!recvcounts) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
-    }
-
-    MPI_Gather(& arraySizeLoc, 1, MPI_INT, recvcounts, 1, MPI_INT, masterProcessorID, MPI_COMM_WORLD);
-
-    if (processorID == masterProcessorID) {
         displacements = (int *) calloc(nProcessor, sizeof(* displacements));
-        if (!displacements) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
+        if (!recvcounts || !displacements) raiseError(CALLOC_SCOPE, CALLOC_ERROR);
         displacements[0] = 0;
-
-        for (int i = 1; i < nProcessor; i++) displacements[i] = displacements[i - 1] + recvcounts[i - 1];
     }
 
-    MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, MPI_COMM_WORLD);
-    if (processorID == masterProcessorID) {
-        if (outputFilePath != NULL) {
-            if (outputFilePath != NULL) saveResult(* c, arraySize, outputFilePath);
-        }
-    }
+    if (MPI_Gather(& arraySizeLoc, 1, MPI_INT, recvcounts, 1, MPI_INT, masterProcessorID, MPI_COMM_WORLD) != MPI_SUCCESS) raiseError(MPI_GATHER_SCOPE, MPI_GATHER_ERROR);
+    if (processorID == masterProcessorID) for (int i = 1; i < nProcessor; i++) displacements[i] = displacements[i - 1] + recvcounts[i - 1];
+
+    if (MPI_Gatherv(cLoc, arraySizeLoc, MPI_FLOAT, * c, recvcounts, displacements, MPI_FLOAT, masterProcessorID, MPI_COMM_WORLD) != MPI_SUCCESS) raiseError(MPI_GATHERV_SCOPE, MPI_GATHERV_ERROR);
+    if (processorID == masterProcessorID && outputFilePath != NULL) saveResult(* c, arraySize, outputFilePath);
     if (MPI_Finalize() != MPI_SUCCESS) raiseError(MPI_FINALIZE_SCOPE, MPI_FINALIZE_ERROR);
 }
 
@@ -81,21 +75,6 @@ void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned i
     if (outputFilePath != NULL) saveResult(* c, arraySize, outputFilePath);
 }
 
-
-
-/*
-    for (int i = 0; i < nProcessor; i++) {
-        for (int j = 0; j < arraySizeLoc; j++) {
-            if (processorID != masterProcessorID) {
-                tag = TAG_START_OFFSET + ;
-                MPI_Send(& cloc[j], 1, MPI_FLOAT, tag)
-            } else {
-
-            }
-        }
-    }
-    */
-    
 
 /*
     if (processorID == masterProcessorID) {
@@ -116,13 +95,3 @@ void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned i
     }
     printf("\nSono %d\n", processorID);
     */
-
-
-   /*
-    if (processorID == 0) {
-        printf("\n\n");
-        for (int i = 0; i < arraySize; i++) {
-            printf("%d -> %f\n", processorID, * ((* c) + i));
-        }
-    }
-*/
