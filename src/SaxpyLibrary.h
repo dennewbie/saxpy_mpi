@@ -46,6 +46,9 @@ static const char * MPI_GATHERV_SCOPE = "MPI Gatherv";
 static const int MPI_ABORT_ERROR = 109;
 static const char * MPI_ABORT_SCOPE = "MPI Abort";
 
+static const int MPI_BARRIER_ERROR = 110;
+static const char * MPI_BARRIER_SCOPE = "MPI Barrier";
+
 
 
 static const int TAG_START_OFFSET = 10;
@@ -59,6 +62,10 @@ typedef enum {
 
 
 
-void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySize, unsigned short int saxpyMode, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath, MPI_Comm commWorld);
-void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, int * argc, char *** argv, const char * outputFilePath, MPI_Comm commWorld);
-void saxpy_sequential (float * a, float * b, float ** c, float alpha, unsigned int arraySize, const char * outputFilePath, MPI_Comm commWorld);
+void saxpy              (float * a, float * b, float ** c, float alpha, unsigned int arraySize, unsigned short int saxpyMode, 
+                        int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor);
+
+void saxpy_parallel     (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, 
+                        MPI_Comm commWorld, int processorID, unsigned int nProcessor);
+
+void saxpy_sequential   (float * a, float * b, float ** c, float alpha, unsigned int arraySize, MPI_Comm commWorld);

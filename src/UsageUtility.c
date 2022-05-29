@@ -28,20 +28,16 @@ void raiseError (const char * errorScope, int exitCode, MPI_Comm commWorld, bool
     }
 }
 
-void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, int * masterProcessorID, char ** outputFilePathString, unsigned short int * saxpyMode, MPI_Comm commWorld) {
+void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, char ** outputFilePathString, unsigned short int * saxpyMode, MPI_Comm commWorld) {
     FILE * configurationFilePointer, * dataFilePointer;
     ssize_t getLineBytes;
-    size_t masterProcessorID_length = 0, dataFilePathLength = 0, nLength = 0, singleNumberLength = 0, outputFilePathLength = 0, saxpyModeLength = 0;
-    char * masterProcessorID_string = NULL, * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL, * saxpyModeString = NULL;
+    size_t dataFilePathLength = 0, nLength = 0, singleNumberLength = 0, outputFilePathLength = 0, saxpyModeLength = 0;
+    char * dataFilePathString = NULL, * nString = NULL, * singleNumberString = NULL, * saxpyModeString = NULL;
     float singleNumber = 0.0F;
 
     // read basic settings parameter from .config file
     configurationFilePointer = fopen(configurationFilePath, "r");
     if (!configurationFilePointer) raiseError(CONFIGURATION_FILE_OPEN_SCOPE, CONFIGURATION_FILE_OPEN_ERROR, commWorld, FALSE);
-    // read master processor ID
-    if ((getLineBytes = getline((char ** restrict) & masterProcessorID_string, (size_t * restrict) & masterProcessorID_length, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
-    * masterProcessorID = (int) strtol((const char * restrict) masterProcessorID_string, (char ** restrict) NULL, 10);
-    if (* masterProcessorID == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOL_SCOPE, STRTOL_ERROR, commWorld, FALSE);
     // read saxpy approach
     if ((getLineBytes = getline((char ** restrict) & saxpyModeString, (size_t * restrict) & saxpyModeLength, (FILE * restrict) configurationFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
     * saxpyMode = (unsigned short int) strtoul((const char * restrict) saxpyModeString, (char ** restrict) NULL, 10);
@@ -60,33 +56,30 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned
     if (* arraySize == 0 && (errno == EINVAL || errno == ERANGE)) raiseError(STRTOUL_SCOPE, STRTOUL_ERROR, commWorld, FALSE);
 
     // read array a, b and scalar alpha from file. Create array c
-    createArrayWithNumbersFromFile(dataFilePointer, a, * arraySize, commWorld);
-    createArrayWithNumbersFromFile(dataFilePointer, b, * arraySize, commWorld);
+    createFloatArrayFromFile(dataFilePointer, a, * arraySize, commWorld);
+    createFloatArrayFromFile(dataFilePointer, b, * arraySize, commWorld);
     if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) dataFilePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
     * alpha = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
     if ((* alpha == 0.0F || * alpha == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR, commWorld, FALSE);
 
-    * c = (float *) calloc(* arraySize, sizeof(** c));
-    if (!(* c)) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);;
+    * c = createFloatArray(* arraySize, commWorld);
     
     // free up memory and close file pointer
     fclose(configurationFilePointer);
     fclose(dataFilePointer);
-    free(masterProcessorID_string);
     free(dataFilePathString);
     free(nString);
     free(singleNumberString);
     free(saxpyModeString);
 }
 
-void createArrayWithNumbersFromFile (FILE * filePointer, float ** array, unsigned int arraySize, MPI_Comm commWorld) {
+void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int arraySize, MPI_Comm commWorld) {
     char * singleNumberString = NULL;
     size_t singleNumberLength = 0;
     ssize_t getLineBytes;
     float singleNumber = 0.0F;
 
-    * array = (float *) calloc(arraySize, sizeof(* array));
-    if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);;
+    * array = createFloatArray(arraySize, commWorld);
     for (int i = 0; i < arraySize; i++) {
         if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
         singleNumber = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
@@ -107,4 +100,16 @@ void saveResult (float * array, unsigned int arraySize, const char * outputFileP
     if (!outputFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR, commWorld, FALSE);
     printArray(outputFilePointer, array, arraySize, commWorld);
     fclose(outputFilePointer);
+}
+
+float * createFloatArray (unsigned int arraySize, MPI_Comm commWorld) {
+    float * array = (float *) calloc(arraySize, sizeof(* array));
+    if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);
+    return array;
+}
+
+int * createIntArray (unsigned int arraySize, MPI_Comm commWorld) {
+    int * array = (int *) calloc(arraySize, sizeof(* array));
+    if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);
+    return array;
 }
