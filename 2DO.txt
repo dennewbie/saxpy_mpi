@@ -1,0 +1,6 @@
+1) vedere se il warning sparisce togliendo l'allocazione di aLoc e bLoc
+2) testare con numero di processori differenti
+3) relazione
+4) grafici e tempi con varie dimensioni di N e numero di processori differente
+6) testing casi limite
+5) consegnare progetto
