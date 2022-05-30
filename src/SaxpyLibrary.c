@@ -26,19 +26,20 @@ void saxpy (float * a, float * b, float ** c, float alpha, unsigned int arraySiz
 void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int arraySize, int masterProcessorID, MPI_Comm commWorld, int processorID, unsigned int nProcessor) {
     int errorCode;
     int * recvcounts = NULL, * displacements = NULL, arraySizeLoc = 0;
-    unsigned int remainder = 0, singleOffset = 0, tag = 0, offset = 0;
+    unsigned int remainder = 0, /*singleOffset = 0, */tag = 0/*, offset = 0*/;
     float * aLoc, * bLoc, * cLoc;
     aLoc = bLoc = cLoc = NULL;
 
     if ((errorCode = MPI_Bcast(& alpha, 1, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, commWorld, FALSE); 
+    if ((errorCode = MPI_Barrier(commWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, commWorld, FALSE);
 
     arraySizeLoc = arraySize / nProcessor;
     remainder = arraySize % nProcessor;
     if (remainder > 0) {
         if (processorID < remainder) {
             arraySizeLoc += 1;
-        } else {
-            singleOffset = 1;
+        /*} else {
+            singleOffset = 1;*/
         }
     }
 
@@ -54,7 +55,7 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     aLoc = createFloatArray(arraySizeLoc, commWorld);
     bLoc = createFloatArray(arraySizeLoc, commWorld);
     cLoc = createFloatArray(arraySizeLoc, commWorld);
-    offset = (processorID * arraySizeLoc) + singleOffset;
+    // offset = (processorID * arraySizeLoc) + singleOffset;
 
     if ((errorCode = MPI_Scatterv(a, recvcounts, displacements, MPI_FLOAT, aLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_SCATTERV_SCOPE, errorCode, commWorld, FALSE); 
     if ((errorCode = MPI_Scatterv(b, recvcounts, displacements, MPI_FLOAT, bLoc, arraySizeLoc, MPI_FLOAT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_SCATTERV_SCOPE, errorCode, commWorld, FALSE); 

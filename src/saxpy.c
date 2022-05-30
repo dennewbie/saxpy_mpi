@@ -28,6 +28,7 @@ int main (int argc, char ** argv) {
     a = b = c = NULL;
     MPI_Comm myCommWorld = MPI_COMM_WORLD;
 
+    // necessario inviare il master processor ID?
     if ((errorCode = MPI_Init(& argc, & argv)) != MPI_SUCCESS) raiseError(MPI_INIT_SCOPE, errorCode, myCommWorld, FALSE);
     if ((errorCode = MPI_Comm_rank(myCommWorld, & processorID)) != MPI_SUCCESS) raiseError(MPI_COMM_RANK_SCOPE, errorCode, myCommWorld, FALSE);
     if ((errorCode = MPI_Comm_size(myCommWorld, & nProcessor)) != MPI_SUCCESS) raiseError(MPI_COMM_SIZE_SCOPE, errorCode, myCommWorld, FALSE);
@@ -44,7 +45,6 @@ int main (int argc, char ** argv) {
     if ((errorCode = MPI_Bcast(& saxpyChosenMode, 1, MPI_UNSIGNED_SHORT, masterProcessorID, myCommWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, myCommWorld, FALSE); 
     if ((errorCode = MPI_Bcast(& arraySize, 1, MPI_UNSIGNED, masterProcessorID, myCommWorld)) != MPI_SUCCESS) raiseError(MPI_BCAST_SCOPE, errorCode, myCommWorld, FALSE); 
     
-    if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);
     saxpy(a, b, & c, alpha, arraySize, saxpyChosenMode, masterProcessorID, myCommWorld, processorID, nProcessor);
     
     if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);
@@ -55,9 +55,7 @@ int main (int argc, char ** argv) {
         if (fprintf(stdout, (const char * restrict) OUTPUT_USER_MESSAGE, outputFilePath, arraySize, alpha, maxTime) < 0) {
             raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, myCommWorld, FALSE);
         }
-    }
-   
-    if (processorID == masterProcessorID) {
+
         saveResult(c, arraySize, outputFilePath, myCommWorld);
         releaseMemory(a, b, c, outputFilePath, (void *) 0);
     }
