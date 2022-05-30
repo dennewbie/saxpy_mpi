@@ -1,6 +1,6 @@
 //
 //  UsageUtility.c
-//  mpi_project
+//  saxpy_mpi
 //
 //  Created by Denny Caruso on 21/05/22.
 //
@@ -9,7 +9,15 @@
 
 
 
-// check parameter/parameters passed via terminal
+/*
+    Controlla i parametri passati via linea di comando.
+    PARMS:
+    - int argc: numero di parametri passati via linea di comando.
+    - const char ** argv: elenco parametri passati via linea di comando.
+    - int expected_argc: numero di parametri attesi da linea di comando.
+    - const char * expectedUsageMessage: messaggio di informazioni per l'utente su quali parametri passare via linea di comando.
+    - MPI_Comm commWorld: communicator utilizzato.
+*/
 void checkUsage (int argc, const char ** argv, int expected_argc, const char * expectedUsageMessage, MPI_Comm commWorld) {
     if (argc != expected_argc) {
         if (fprintf(stderr, (const char * restrict) "Usage: %s %s\n", argv[0], expectedUsageMessage) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, commWorld, FALSE);
@@ -17,7 +25,15 @@ void checkUsage (int argc, const char ** argv, int expected_argc, const char * e
     }
 }
 
-// Handle most common errors and show scope plus error code. After doing this, exit from process
+/*
+    Gestisce gli errori con conseguente terminazione del programma su tutti processori del communicator. Stampa del messaggio e 
+    codice d'errore.
+    PARMS:
+        - const char * errorScope: scope dove è avvenuto l'errore o messaggio di errore da mostrare all'utente.
+        - int exitCode: codice di errore da mostrare all'utente.
+        - MPI_Comm commWorld: communicator utilizzato.
+        - boolean recursionOverflow: se vero indica un errore implicito alla "MPI_Abort(...)", tale per cui si termina in maniera locale.
+*/
 void raiseError (const char * errorScope, int exitCode, MPI_Comm commWorld, boolean recursionOverflow) {
     if (recursionOverflow) {
         if (fprintf(stderr, (const char * restrict) "Scope: %s - Error #%d\n", RECURSION_OVERFLOW_SCOPE, RECURSION_OVERFLOW_ERROR) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, commWorld, TRUE);
@@ -28,6 +44,22 @@ void raiseError (const char * errorScope, int exitCode, MPI_Comm commWorld, bool
     }
 }
 
+/*
+    Imposta l'ambiente prima di procedere con l'operazione saxpy vera e propria. Si occupa di allocare la memoria necessaria, 
+    di leggere le impostazioni dal file di configurazione, di leggere i dati di input e le dimensioni degli array. Il tutto con un 
+    opportuno error handling.
+    PARMS:
+        - float ** a: array a di input che verrà prima allocato e poi riempito con i valori letti dal file di input.
+        - float ** b: array b di input che verrà prima allocato e poi riempito con i valori letti dal file di input.
+        - float * alpha: scalare alpha coinvolto nell'operazione saxpy.
+        - float ** c: array c di output che verrà soltanto allocato all'interno di questa routine.
+        - unsigned int * arraySize: dimensione array a, b, c.
+        - const char * configurationFilePath: path dove è situato il file di configurazione.
+        - char ** outputFilePathString: path dove è situato il file di output all'interno del quale memorizzare il risultato 
+        dell'operazione saxpy.
+        - unsigned short int * saxpyMode: modalità operazione saxpy.
+        - MPI_Comm commWorld: communicator utilizzato.
+*/
 void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned int * arraySize, const char * configurationFilePath, char ** outputFilePathString, unsigned short int * saxpyMode, MPI_Comm commWorld) {
     FILE * configurationFilePointer, * dataFilePointer;
     ssize_t getLineBytes;
@@ -69,6 +101,13 @@ void setEnvironment (float ** a, float ** b, float * alpha, float ** c, unsigned
     releaseMemory(dataFilePathString, nString, singleNumberString, saxpyModeString, (void *) 0);
 }
 
+/*
+    Legge "arraySize" float dal file pointer specificato da "filePointer" e li memorizza nell'array "array" che essendo parametro 
+    di output viene "cambiato" anche per la routine che invoca.
+    PARMS:
+    - unsigned int arraySize: dimensione array da creare.
+    - MPI_Comm commWorld:  communicator utilizzato di riferimento.
+*/
 void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int arraySize, MPI_Comm commWorld) {
     char * singleNumberString = NULL;
     size_t singleNumberLength = 0;
@@ -77,6 +116,9 @@ void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int 
 
     * array = createFloatArray(arraySize, commWorld);
     for (int i = 0; i < arraySize; i++) {
+        /*
+            Lettura di un float per volta e conseguente memorizzazione nell'array.
+        */
         if ((getLineBytes = getline((char ** restrict) & singleNumberString, (size_t * restrict) & singleNumberLength, (FILE * restrict) filePointer)) == -1) raiseError(GETLINE_SCOPE, GETLINE_ERROR, commWorld, FALSE);
         singleNumber = (float) strtof((const char *) singleNumberString, (char ** restrict) NULL);
         if ((singleNumber == 0.0F || singleNumber == HUGE_VALF) && (errno == ERANGE)) raiseError(STRTOF_SCOPE, STRTOF_ERROR, commWorld, FALSE);
@@ -86,11 +128,26 @@ void createFloatArrayFromFile (FILE * filePointer, float ** array, unsigned int 
     releaseMemory(singleNumberString, (void *) 0);
 }
 
-// just print the array on file pointer
+/*
+    Scrive un array di float di dimensione "arraySize" sul file pointer specificato da "filePointer".
+    PARMS:
+    - FILE * filePointer: puntatore al file dove scrivere i valori float.
+    - float * array: array contenente i dati da scrivere nel file.
+    - unsigned int arraySize: dimensione array.
+    - MPI_Comm commWorld: communicator utilizzato di riferimento.
+*/
 void printArray (FILE * filePointer, float * array, unsigned int arraySize, MPI_Comm commWorld) {
     for (int i = 0; i < arraySize; i++) if (fprintf(filePointer, "%.5f\n", array[i]) < 0) raiseError(FPRINTF_SCOPE, FPRINTF_ERROR, commWorld, FALSE);
 }
 
+/*
+    Salva un array di float di dimensione "arraySize" all'interno del file con path "outputFilePath".
+    PARMS:
+    - float * array: array contenente i dati da scrivere nel file.
+    - unsigned int arraySize: dimensione array.
+    - const char * outputFilePath: path del file di output.
+    - MPI_Comm commWorld: communicator utilizzato di riferimento.
+*/
 void saveResult (float * array, unsigned int arraySize, const char * outputFilePath, MPI_Comm commWorld) {
     FILE * outputFilePointer = fopen(outputFilePath, "w");
     if (!outputFilePointer) raiseError(DATA_FILE_OPEN_SCOPE, DATA_FILE_OPEN_ERROR, commWorld, FALSE);
@@ -98,18 +155,36 @@ void saveResult (float * array, unsigned int arraySize, const char * outputFileP
     closeFiles(outputFilePointer, (void *) 0);
 }
 
+/*
+    Restituisce un array di float di dimensione "arraySize".
+    PARMS:
+    - unsigned int arraySize: dimensione array da creare.
+    - MPI_Comm commWorld: communicator utilizzato di riferimento.
+*/
 float * createFloatArray (unsigned int arraySize, MPI_Comm commWorld) {
     float * array = (float *) calloc(arraySize, sizeof(* array));
     if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);
     return array;
 }
 
+/*
+    Restituisce un array di interi di dimensione "arraySize".
+    PARMS:
+    - unsigned int arraySize: dimensione array da creare.
+    - MPI_Comm commWorld: communicator utilizzato di riferimento.
+*/
 int * createIntArray (unsigned int arraySize, MPI_Comm commWorld) {
     int * array = (int *) calloc(arraySize, sizeof(* array));
     if (!array) raiseError(CALLOC_SCOPE, CALLOC_ERROR, commWorld, FALSE);
     return array;
 }
 
+/*
+    Libera uno o più blocchi di memoria passati nei parametri come puntatori a void. Si tratta di una "variadic function".
+    PARMS:
+    - void * arg1: primo elemento della "va_list" creata successivamente e a partire dal quale si procederà con l'operazione specificata
+    nel while { ... }.
+*/
 void releaseMemory (void * arg1, ... ) {
     va_list argumentsList;
     void * currentElement;
@@ -119,6 +194,12 @@ void releaseMemory (void * arg1, ... ) {
     va_end(argumentsList);
 }
 
+/*
+    Chiude uno o più file passati nei parametri come puntatori a void. Si tratta di una "variadic function".
+    PARMS:
+    - void * arg1: primo elemento della "va_list" creata successivamente e a partire dal quale si procederà con l'operazione specificata
+    nel while { ... }.
+*/
 void closeFiles (void * arg1, ... ) {
     va_list argumentsList;
     void * currentElement;

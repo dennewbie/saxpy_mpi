@@ -1,6 +1,6 @@
 //
 //  UsageUtility.h
-//  mpi_project
+//  saxpy_mpi
 //
 //  Created by Denny Caruso on 21/05/22.
 //
