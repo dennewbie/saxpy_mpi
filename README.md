@@ -2,10 +2,8 @@
 
 ## Progetto di Calcolo Parallelo e Distribuito e Laboratorio di Calcolo Parallelo e Distribuito - Università "Parthenope"
 
-Implementazione di un algoritmo parallelo (p processori) per il calcolo dell’operazione c = alpha * a + b, 
+Implementazione di un algoritmo parallelo (p processori) per il calcolo dell’operazione saxpy c = alpha * a + b, 
 con a, b vettori di dimensione N e alpha uno scalare, in ambiente MPI-Docker.
-
-### Demo
 
 
 ### Usage
@@ -26,11 +24,16 @@ ssh-copy-id node02
 ssh-copy-id node03
 make
 sh employ_4_node.sh machinefile_4 4 ./saxpy ../conf/settings50.conf 0
-
 ```
+
+![screen](https://github.com/dennewbie/saxpy_mpi/blob/main/img/screen.png)
+
+
 
 ### Docs
 - [Relazione Progetto](https://github.com/dennewbie/saxpy_mpi/blob/main/doc/relazione_saxpy_mpi.pdf)
+
+
 
 ### Tools
 - Docker
