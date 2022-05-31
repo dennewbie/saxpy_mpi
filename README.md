@@ -36,8 +36,8 @@ sh employ_4_node.sh machinefile_4 4 ./saxpy ../conf/settings50.conf 0
 
 
 ### Tools
-- Docker
-- Valgrind
+- [Docker](docker.com)
+- [Valgrind](valgrind.org)
 
 
 
