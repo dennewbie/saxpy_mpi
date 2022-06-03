@@ -21,7 +21,7 @@ int main (int argc, char ** argv) {
         La variabile "errorCode" serve per mostrare gli eventuali codici di errore generati dalla chiamata delle routine 
         della libreria di MPI.
         La variabile "totalTime" contiene il tempo totale per ogni processore impiegato per effettuare l'operazione di calcolo e 
-        le altre operazioni annesse. Mentre la variabile "maxTime" conterrà solo il tempo massimo fra tutti i "totalImpiegati" dai 
+        le altre operazioni annesse. Mentre la variabile "maxTime" conterrà solo il tempo massimo fra tutti i "tempi totali impiegati" dai 
         processori.
     */
     const int expectedArgc = 3;
@@ -54,7 +54,7 @@ int main (int argc, char ** argv) {
     
     /*
         Si stabilisce una barriera di sincronizzazione dopo aver impostato l'ambiente e si prende il tempo di inizio. Poi si invia in 
-        broadcast dal processore master a tutti gli altri nel communicator la moodalità di operazione saxpy scelta e la dimensione dei due 
+        broadcast dal processore master a tutti gli altri nel communicator la modalità di operazione saxpy scelta e la dimensione dei due 
         array ricavati dal file di dati in input. Fatto ciò, si invoca l'operazione di "saxpy(...)".
     */
     if ((errorCode = MPI_Barrier(myCommWorld) != MPI_SUCCESS)) raiseError(MPI_BARRIER_SCOPE, errorCode, myCommWorld, FALSE);

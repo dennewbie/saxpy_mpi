@@ -103,7 +103,7 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     }
 
     /*
-        Si ricava l'array "recvcounts" tramite "MPI_Gather(...) con le varie dimensioni locali "arratSizeLoc". Si ricava poi l'array 
+        Si ricava l'array "recvcounts" tramite "MPI_Gather(...)" con le varie dimensioni locali "arratSizeLoc". Si ricava poi l'array 
         degli spiazzamenti "displacements" da considerare. Poi si alloca la memoria per gli array locali "aLoc", "bLoc" e "cLoc".
     */
     if ((errorCode = MPI_Gather(& arraySizeLoc, 1, MPI_INT, recvcounts, 1, MPI_INT, masterProcessorID, commWorld)) != MPI_SUCCESS) raiseError(MPI_GATHER_SCOPE, errorCode, commWorld, FALSE);
