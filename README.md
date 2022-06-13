@@ -5,7 +5,6 @@
 Implementazione di un algoritmo parallelo (p processori) per il calcolo dell’operazione saxpy c = alpha * a + b, 
 con a, b vettori di dimensione N e alpha uno scalare, in ambiente MPI-Docker.
 
-
 ### Usage
 Esempio per 4 processori nel cluster. Da terminale nella cartella dove è presente il Dockerfile e per ogni processore del cluster:
 
@@ -27,6 +26,8 @@ sh employ_4_node.sh machinefile_4 4 ./saxpy ../conf/settings50.conf 0
 ```
 
 ![screen](https://github.com/dennewbie/saxpy_mpi/blob/main/img/screen.png)
+
+![results_collection](https://github.com/dennewbie/saxpy_mpi/blob/main/img/approccio_parallelo_saxpy_mpi.png)
 
 
 
