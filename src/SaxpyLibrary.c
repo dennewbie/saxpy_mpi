@@ -90,11 +90,7 @@ void saxpy_parallel (float * a, float * b, float ** c, float alpha, unsigned int
     */
     arraySizeLoc = arraySize / nProcessor;
     remainder = arraySize % nProcessor;
-    if (remainder > 0) {
-        if (processorID < remainder) {
-            arraySizeLoc += 1;
-        }
-    }
+    if (processorID < remainder) arraySizeLoc += 1;
 
     if (processorID == masterProcessorID) {
         recvcounts = createIntArray(nProcessor, commWorld);
